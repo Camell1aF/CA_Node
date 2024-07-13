@@ -410,3 +410,49 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
+// 修改密码的路由
+app.post('/change-password', (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const username = req.session.username; // 假设用户名保存在会话中
+
+  if (username && currentPassword && newPassword) {
+    // 验证当前密码是否正确
+    db.query('SELECT password FROM users WHERE username = ?', [username], (err, results) => {
+      if (err) throw err;
+      if (results.length > 0 && results[0].password === currentPassword) {
+        // 更新密码
+        db.query('UPDATE users SET password = ? WHERE username = ?', [newPassword, username], (err, results) => {
+          if (err) throw err;
+          // 销毁会话并重定向到登录页面
+          req.session.destroy(err => {
+            if (err) {
+              return res.json({ success: false, message: '修改密码后会话销毁失败' });
+            }
+            res.json({ success: true });
+          });
+        });
+      } else {
+        res.json({ success: false, message: '当前密码不正确' });
+      }
+    });
+  } else {
+    res.json({ success: false, message: '请输入当前密码和新密码' });
+  }
+});
+
+
+// 添加修改密码页面路由
+app.get('/change-password.html', (req, res) => {
+  if (req.session.loggedin) {
+    res.sendFile(path.join(__dirname, 'public/views', 'change-password.html'));
+  } else {
+    res.redirect('/');
+  }
+});
+
+// 添加登录页面路由
+app.get('/login.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public/views', 'login.html'));
+});
+
