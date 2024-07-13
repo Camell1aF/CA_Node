@@ -254,6 +254,10 @@ function deleteData(phoneNumber) {
     }
 }
 
+function updateFavoritesCount() {
+    document.getElementById('totalFavorites').textContent = favorites.length;
+}
+
 function closeModal() {
     const modal = document.querySelector('.modal');
     if (modal) {
