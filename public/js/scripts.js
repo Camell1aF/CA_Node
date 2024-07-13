@@ -244,9 +244,12 @@ function deleteData(phoneNumber) {
         })
         .then(response => {
             if (response.ok) {
-                favorites = favorites.filter(fav => fav.phoneNumber !== phoneNumber); // 删除收藏夹中的数据
-                localStorage.setItem('favorites', JSON.stringify(favorites)); // 更新localStorage
+                // 删除成功后，从收藏夹中移除该数据并更新本地存储
+                favorites = favorites.filter(fav => fav.phoneNumber !== phoneNumber);
+                localStorage.setItem('favorites', JSON.stringify(favorites));
                 updateFavoritesCount(); // 更新收藏数据总数
+
+                // 重新获取当前页的数据
                 fetchData(currentPage);
             } else {
                 alert('删除失败');
@@ -255,6 +258,7 @@ function deleteData(phoneNumber) {
         .catch(error => console.error('Error deleting data:', error));
     }
 }
+
 
 function updateFavoritesCount() {
     const totalFavoritesElement = document.getElementById('totalFavorites');
