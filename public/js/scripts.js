@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('请选择一个日期');
             return;
         }
-
+    
         const confirmed = confirm(`确认删除${deleteDate}之前的数据吗？`);
         if (confirmed) {
             try {
@@ -333,14 +333,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     body: JSON.stringify({ deleteDate })
                 });
-
+    
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-
+    
                 const result = await response.json();
                 alert(result.message);
                 bulkDeleteModal.style.display = 'none';
+                
+                // 更新收藏总数
+                const updatedFavorites = favorites.filter(fav => {
+                    const favDate = new Date(fav.timestamp);
+                    return favDate >= new Date(deleteDate);
+                });
+                favorites = updatedFavorites;
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+                updateFavoritesCount(); // 更新收藏数据总数
+    
                 // 重新加载数据或更新界面
                 location.reload();
             } catch (error) {
@@ -348,5 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('删除数据时出错，请稍后再试');
             }
         }
-    }
+    };
+    
 });
