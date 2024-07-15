@@ -26,6 +26,12 @@ body {
     height: 50px;
 }
 
+.navigation {
+    display: flex;
+    align-items: center;
+}
+
+
 .navigation a {
     margin-right: 20px;
     text-decoration: none;
@@ -310,4 +316,22 @@ table tr:nth-child(even) {
     color: black;
     text-decoration: none;
     cursor: pointer;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+}
+
+.toolbar button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.toolbar button:hover {
+    background-color: #0056b3;
 }

@@ -372,6 +372,7 @@ app.post('/login', (req, res) => {
       if (results.length > 0) {
         req.session.loggedin = true;
         req.session.username = username;
+        req.session.role = results[0].role; // 假设你的数据库中有一个角色字段
         res.json({ success: true });
       } else {
         res.json({ success: false, message: 'Incorrect username or password' });
@@ -407,10 +408,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/views', 'login.html'));
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
 // 修改密码的路由
 app.post('/change-password', (req, res) => {
   const { currentPassword, newPassword } = req.body;
@@ -441,7 +438,6 @@ app.post('/change-password', (req, res) => {
   }
 });
 
-
 // 添加修改密码页面路由
 app.get('/change-password.html', (req, res) => {
   if (req.session.loggedin) {
@@ -456,3 +452,62 @@ app.get('/login.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public/views', 'login.html'));
 });
 
+// 获取会话信息的路由
+app.get('/session-info', (req, res) => {
+  if (req.session.loggedin) {
+    res.json({ loggedin: true, username: req.session.username, role: req.session.role });
+  } else {
+    res.json({ loggedin: false });
+  }
+});
+
+// 保护employee-management.html路由
+app.get('/employee-management.html', (req, res) => {
+  if (req.session.loggedin && req.session.role === 'boss') {
+    res.sendFile(path.join(__dirname, 'public/views', 'employee-management.html'));
+  } else {
+    res.redirect('/');
+  }
+});
+
+// 获取 role 为 user 的用户数据
+app.get('/get-users', (req, res) => {
+  if (req.session.loggedin && req.session.role === 'boss') {
+    db.query('SELECT * FROM users WHERE role = ?', ['user'], (err, results) => {
+      if (err) throw err;
+      res.json({ success: true, users: results });
+    });
+  } else {
+    res.json({ success: false, message: 'Unauthorized' });
+  }
+});
+
+// 编辑用户信息
+app.post('/edit-user', (req, res) => {
+  const { username, newUsername, newPassword } = req.body;
+  if (req.session.loggedin && req.session.role === 'boss') {
+    db.query('UPDATE users SET username = ?, password = ? WHERE username = ?', [newUsername, newPassword, username], (err, results) => {
+      if (err) throw err;
+      res.json({ success: true });
+    });
+  } else {
+    res.json({ success: false, message: 'Unauthorized' });
+  }
+});
+
+// 删除用户
+app.post('/delete-user', (req, res) => {
+  const { username } = req.body;
+  if (req.session.loggedin && req.session.role === 'boss') {
+    db.query('DELETE FROM users WHERE username = ?', [username], (err, results) => {
+      if (err) throw err;
+      res.json({ success: true });
+    });
+  } else {
+    res.json({ success: false, message: 'Unauthorized' });
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});

@@ -7,6 +7,14 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchData();
     updateButtonStates();
     updateFavoritesCount(); // 更新收藏数据总数
+
+    fetch('/session-info')
+        .then(response => response.json())
+        .then(data => {
+            if (data.role === 'boss') {
+                document.getElementById('employeeManagement').style.display = 'block';
+            }
+        });
 });
 
 function fetchData(page = 1) {
@@ -359,5 +367,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
+    fetch('/session-info')
+        .then(response => response.json())
+        .then(data => {
+            if (data.role === 'boss') {
+                document.getElementById('employeeManagement').style.display = 'block';
+            }
+        });
     
 });

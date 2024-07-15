@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>员工管理</title>
+    <link rel="stylesheet" href="/public/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="/public/images/R.png" alt="Logo" class="logo">
+            <nav class="navigation">
+                <a href="/index.html">首页</a>
+                <a href="/change-password.html">修改密码</a>
+                <a href="/favorites.html">收藏夹</a>
+                <a href="#" id="bulkDeleteBtn">批量删除</a>
+            </nav>
+            <div class="admin-dropdown">
+                <a href="/" class="dropbtn">登出</a>
+            </div>
+        </div>
+        <div class="content">
+            <h1>员工管理页面</h1>
+            <div class="toolbar">
+                <button onclick="openAddUserModal()">添加账户</button>
+            </div>
+            <table id="usersTable">
+                <thead>
+                    <tr>
+                        <th>用户名</th>
+                        <th>密码</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- 用户数据将被动态插入这里 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 添加账户的悬浮框 -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddUserModal()">&times;</span>
+            <h2>添加账户</h2>
+            <form id="addUserForm">
+                <label for="username">用户名:</label><br>
+                <input type="text" id="username" name="username" required><br><br>
+                <label for="password">密码:</label><br>
+                <input type="password" id="password" name="password" required><br><br>
+                <button type="submit">添加</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('/get-users')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const tbody = document.querySelector('#usersTable tbody');
+                        data.users.forEach(user => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${user.username}</td>
+                                <td>${user.password}</td>
+                                <td>
+                                    <button onclick="editUser('${user.username}')">编辑</button>
+                                    <button onclick="deleteUser('${user.username}')">删除</button>
+                                </td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => console.error('Error fetching users:', error));
+        });
+
+        function openAddUserModal() {
+            const modal = document.getElementById('addUserModal');
+            modal.style.display = 'block';
+        }
+
+        function closeAddUserModal() {
+            const modal = document.getElementById('addUserModal');
+            modal.style.display = 'none';
+        }
+
+        document.getElementById('addUserForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            fetch('/add-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('用户添加成功');
+                    location.reload();
+                } else {
+                    alert('添加失败: ' + data.message);
+                }
+            })
+            .catch(error => console.error('Error adding user:', error));
+        });
+
+        function editUser(username) {
+            const newUsername = prompt('请输入新的用户名:', username);
+            const newPassword = prompt('请输入新的密码:');
+            if (newUsername && newPassword) {
+                fetch('/edit-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, newUsername, newPassword })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('用户信息更新成功');
+                        location.reload();
+                    } else {
+                        alert('更新失败: ' + data.message);
+                    }
+                })
+                .catch(error => console.error('Error editing user:', error));
+            }
+        }
+
+        function deleteUser(username) {
+            if (confirm('确定要删除此用户吗？')) {
+                fetch('/delete-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('用户删除成功');
+                        location.reload();
+                    } else {
+                        alert('删除失败: ' + data.message);
+                    }
+                })
+                .catch(error => console.error('Error deleting user:', error));
+            }
+        }
+    </script>
+</body>
+</html>
