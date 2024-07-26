@@ -57,7 +57,12 @@ function renderData(data) {
                 <div>${item.ipAddress || ''}</div>
             </td>
             <td>${item.phoneNumber || ''}</td>
-            <td>${item.relationship || ''}</td>
+            <td>
+                <div class="collapsible">
+                    ${item.relationship || ''}
+                    <span class="show-more" onclick="toggleShowMore(this)">展开</span>
+                </div>
+            </td>
             <td>${item.currentLocation || ''}</td>
             <td>
                 <button onclick="showContactDetails('${item.phoneNumber}')">通讯录</button>
@@ -69,6 +74,17 @@ function renderData(data) {
         `;
         tbody.appendChild(row);
     });
+}
+
+function toggleShowMore(element) {
+    const collapsible = element.parentElement;
+    if (collapsible.classList.contains('expanded')) {
+        collapsible.classList.remove('expanded');
+        element.textContent = '展开';
+    } else {
+        collapsible.classList.add('expanded');
+        element.textContent = '折叠';
+    }
 }
 
 function renderPagination(total, page, pageSize, elementId) {

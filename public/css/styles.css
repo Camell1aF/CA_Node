@@ -84,11 +84,47 @@ table {
     margin-top: 20px;
 }
 
+tbody tr {
+    height: 250px;
+}
+
 th, td {
     padding: 20px;
     border-bottom: 1px solid #ddd;
     vertical-align: middle;
     text-align: center;
+}
+
+/* 设置每行的固定高度，并隐藏超出部分 */
+td .collapsible {
+    max-height: 50px; /* 固定高度 */
+    overflow: hidden;
+    position: relative;
+    line-height: 1.5em;
+}
+
+/* 折叠按钮的样式 */
+.show-more {
+    display: block;
+    background-color: #007BFF; /* 蓝色背景 */
+    color: white; /* 白色文字 */
+    cursor: pointer;
+    padding: 0 2px 0 9px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    text-align: right;
+    font-size: 12px;
+    border-radius: 50px 0 0 0; /* 左下角到右上角的弧度 */
+}
+
+.show-more:hover {
+    background-color: #0056b3; /* 深蓝色背景 */
+}
+
+/* 折叠后的显示更多样式 */
+.collapsible.expanded {
+    max-height: none;
 }
 
 th {
